@@ -7,4 +7,5 @@ import (
 
 func init() {
 	beego.Router("/", &login.LoginController{})
+	beego.Router("/change_captcha/", &login.LoginController{}, "get:ChangeCaptcha")
 }

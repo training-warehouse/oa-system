@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>内部办公网-后台系统管理</title>
-	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta charset="UTF-8">
+    <title>内部办公网-后台系统管理</title>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
-    <meta http-equiv="Cache-Control" content="no-siteapp" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="/static/css/font.css">
-	<link rel="stylesheet" href="/static/css/xadmin.css">
+    <link rel="stylesheet" href="/static/css/xadmin.css">
     <link rel="icon" href="/static/images/zlkt.ico" type="image/x-icon"/>
     <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="/static/lib/layui/layui.js" charset="utf-8"></script>
@@ -17,49 +18,93 @@
 
 </head>
 <body class="login-bg">
-    
-    <div class="login">
-        <div class="message">内部办公网-登录管理</div>
-        <div id="darkbannerwrap"></div>
-        
-        <form method="post" class="layui-form" >
-            <input name="username" placeholder="用户名"  type="text" lay-verify="required" class="layui-input" >
-            <hr class="hr15">
-            <input name="password" lay-verify="required" placeholder="密码"  type="password" class="layui-input">
-            <hr class="hr15">
-            <div>
-                <input placeholder="验证码" type="text" class="layui-input" style="width: 180px;float: left">
-                <img src="/static/images/code.jpg" style="width: 140px;height: 50px;float: right"/>
-            </div>
-            <hr class="hr15">
-            <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
-            <hr class="hr20" >
-        </form>
-    </div>
 
-    <script>
-        $(function  () {
-            layui.use('form', function(){
-              var form = layui.form;
-              // layer.msg('玩命卖萌中', function(){
-              //   //关闭后的操作
-              //   });
-              //监听提交
-              form.on('submit(login)', function(data){
-                // alert(888)
-                layer.msg(JSON.stringify(data.field),function(){
-                    location.href='index.html'
-                });
-                return false;
-              });
-            });
+<div class="login">
+    <div class="message">内部办公网-登录管理</div>
+    <div id="darkbannerwrap"></div>
+
+    <form method="post" class="layui-form">
+        <input id="username" placeholder="用户名" type="text" lay-verify="required" class="layui-input">
+        <hr class="hr15">
+        <input id="password" lay-verify="required" placeholder="密码" type="password" class="layui-input">
+        <hr class="hr15">
+        <div>
+            <input placeholder="验证码" type="text" class="layui-input" style="width: 180px;float: left" id="captcha">
+            <img style="width: 140px;height: 50px;float: right;cursor: pointer" id="captcha_img"/>
+            <input type="hidden" value="{{.captcha.Id}}" id="captcha_id">
+        </div>
+        <hr class="hr15">
+        <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="button" id="btn">
+        <hr class="hr20">
+    </form>
+</div>
+
+<script>
+    var bs64 = {{.captcha.BS64}};
+    var img_btn = document.getElementById("captcha_img")
+    var img_input = document.getElementById("captcha_id")
+    img_btn.setAttribute("src", bs64)
+
+    img_btn.onclick = function (e) {
+        $.get({
+            url: "/change_captcha/",
+            data: {},
+            success: function (data) {
+                var code = data["Code"]
+                if (code === 200) {
+                    img_btn.setAttribute("src", data["BS64"])
+                    img_input.setAttribute("value", data["id"])
+                } else {
+                    alert(data["msg"])
+                }
+            },
+            fail: function (data) {
+                console.log(data);
+            }
         })
+    };
 
-        
-    </script>
+    $(function () {
+        layui.use('form', function () {
+            var form = layui.form;
+            // layer.msg('玩命卖萌中', function(){
+            //   //关闭后的操作
+            //   });
+            //监听提交
+            form.on('submit(login)', function (data) {
+                var username = document.getElementById("username").value;
+                var password = document.getElementById("password").value;
+                var captcha = document.getElementById("captcha").value;
+                var captcha_id = document.getElementById("captcha_id").value;
+                $.post({
+                    url: "/",
+                    data: {
+                        username: username,
+                        password: password,
+                        captcha: captcha,
+                        captcha_id: captcha_id
+                    },
+                    success: function (data) {
+                        var code = data['code']
+                        if (code === 200) {
+                            // fixme 设置跳转
+                            window.location.href = ""
+                        } else {
+                            console.log(data);
+                            alert(data["msg"])
+                        }
+                    },
+                    fail: function (data) {
 
-    
-    <!-- 底部结束 -->
-    
+                    }
+                })
+            });
+        });
+    })
+</script>
+
+
+<!-- 底部结束 -->
+
 </body>
 </html>
