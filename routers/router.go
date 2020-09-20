@@ -2,9 +2,9 @@ package routers
 
 import (
 	"github.com/astaxie/beego"
-	"oa_system/controllers"
+	"oa_system/controllers/login"
 )
 
 func init() {
-	beego.Router("/", &controllers.MainController{})
+	beego.Router("/", &login.LoginController{})
 }
