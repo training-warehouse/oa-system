@@ -20,7 +20,7 @@
 <body>
     <!-- 顶部开始 -->
     <div class="container">
-        <div class="logo"><a href="./index.html">内部办公网系统</a></div>
+        <div class="logo"><a href="/main/index/">内部办公网系统</a></div>
         <div class="left_open">
             <i title="展开左侧栏" class="iconfont">&#xe699;</i>
         </div>
@@ -52,7 +52,7 @@
                 </a>
                 <ul class="sub-menu">
                     <li>
-                        <a _href="member-list.html">
+                        <a _href="{{urlfor "UserController.Get"}}">
                             <i class="iconfont">&#xe6a7;</i>
                             <cite>用户列表</cite>
                             
@@ -274,7 +274,7 @@
           </ul>
           <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">
-                <iframe src="/main/welcome/" frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+                <iframe src="{{urlfor "HomeController.Welcome"}}" frameborder="0" scrolling="yes" class="x-iframe"></iframe>
             </div>
           </div>
         </div>

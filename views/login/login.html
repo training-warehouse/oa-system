@@ -89,7 +89,7 @@
                     success: function (data) {
                         var code = data['code']
                         if (code === 200) {
-                            window.location.href = "/main/index/"
+                            window.location.href = "{{urlfor "HomeController.Get"}}"
                         } else {
                             oa_alert.alertError(data["msg"])
                             var img_btn = document.getElementById("captcha_img")

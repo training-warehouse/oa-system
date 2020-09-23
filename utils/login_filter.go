@@ -1,11 +1,14 @@
 package utils
 
-import "github.com/astaxie/beego/context"
+import (
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/context"
+)
 
 func LoginFilter(ctx *context.Context) {
 	// 获取Session
 	id := ctx.Input.Session("id")
 	if id == nil {
-		ctx.Redirect(302, "/")
+		ctx.Redirect(302, beego.URLFor("LoginController.Get"))
 	}
 }
