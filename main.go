@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "oa_system/models/user"
 	_ "oa_system/routers"
+	"oa_system/utils"
 )
 
 func init() {
@@ -26,5 +27,8 @@ func main() {
 	orm.RunCommand()
 	// 开启session
 	beego.BConfig.WebConfig.Session.SessionOn = true
+
+	// 未登录请求拦截
+	beego.InsertFilter("/main/*", beego.BeforeRouter, utils.LoginFilter)
 	beego.Run()
 }

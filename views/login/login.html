@@ -89,8 +89,7 @@
                     success: function (data) {
                         var code = data['code']
                         if (code === 200) {
-                            alert(data["msg"])
-                            window.location.href = ""
+                            window.location.href = "/main/index/"
                         } else {
                             oa_alert.alertError(data["msg"])
                             var img_btn = document.getElementById("captcha_img")
