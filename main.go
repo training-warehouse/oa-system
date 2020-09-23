@@ -24,5 +24,7 @@ func init() {
 
 func main() {
 	orm.RunCommand()
+	// 开启session
+	beego.BConfig.WebConfig.Session.SessionOn = true
 	beego.Run()
 }

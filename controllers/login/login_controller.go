@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"oa_system/models/user"
 	"oa_system/utils"
 )
 
@@ -43,8 +44,10 @@ func (l *LoginController) Post() {
 		ret_map["code"] = 10001
 		ret_map["msg"] = "验证码错误"
 	} else {
-		// todo 获取用户 设置session
-		l.SetSession("id", 11)
+		user_obj := user.User{}
+		o.QueryTable("sys_user").Filter(
+			"user_name", username).Filter("password", password_md5).One(&user_obj)
+		l.SetSession("id", user_obj.Id)
 		ret_map["code"] = 200
 		ret_map["msg"] = "登录成功"
 	}
