@@ -19,6 +19,10 @@
     <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
     <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <link rel="stylesheet" href="/static/js/sweetalert/sweetalert.css">
+    <script src="/static/js/sweetalert/sweetalert.min.js"></script>
+    <script src="/static/js/sweetalert/oa_alert.js"></script>
 </head>
 
 <body>
@@ -44,7 +48,8 @@
     </div>
     <xblock>
         <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
-        <button class="layui-btn" onclick="x_admin_show('添加用户','./member-add.html',600,400)"><i class="layui-icon"></i>添加
+        <button class="layui-btn" onclick="x_admin_show('添加用户','{{urlfor "UserController.Add"}}',600,400)"><i
+                    class="layui-icon"></i>添加
         </button>
         <span class="x-right" style="line-height:40px">共有数据：{{len .users}} 条</span>
     </xblock>
@@ -96,11 +101,11 @@
 
                 <td class="td-manage">
                     {{if eq .IsActive 1}}
-                        <a onclick="member_stop(this,'10001')" href="javascript:;" title="停用">
+                        <a onclick="is_active(this,{{.Id}},{{.IsActive}})" href="javascript:;" title="停用">
                             <i class="layui-icon">&#xe601;</i>
                         </a>
                     {{else}}
-                        <a onclick="member_stop(this,'10001')" href="javascript:;" title="启用">
+                        <a onclick="is_active(this,{{.Id}},{{.IsActive}})" href="javascript:;" title="启用">
                             <i class="layui-icon">&#xe62f;</i>
                         </a>
                     {{end}}
@@ -121,21 +126,21 @@
     <div class="page">
         <div>
             <span style="border:none">总页数：{{.countPage}}</span>
-            <a class="prev" href="{{urlfor "UserController.Get"}}?page={{.pageMap.firstpage}}">首页</a>
-            <a class="prev" href="{{urlfor "UserController.Get"}}?page={{.prePage}}">上一页</a>
+            <a class="prev" href="{{urlfor "UserController.List"}}?page={{.pageMap.firstpage}}">首页</a>
+            <a class="prev" href="{{urlfor "UserController.List"}}?page={{.prePage}}">上一页</a>
             {{range .pageMap.num_pages}}
                 {{if eq . $.pageMap.currpage}}
-                    <a href="{{urlfor "UserController.Get"}}?page={{.}}" style="border: none;padding: 0">
+                    <a href="{{urlfor "UserController.List"}}?page={{.}}" style="border: none;padding: 0">
                         <span class="current">{{.}}</span>
                     </a>
                 {{else}}
-                    <a href="{{urlfor "UserController.Get"}}?page={{.}}" style="border: none;padding: 0">
+                    <a href="{{urlfor "UserController.List"}}?page={{.}}" style="border: none;padding: 0">
                         <span>{{.}}</span>
                     </a>
                 {{end}}
             {{end}}
-            <a class="next" href="{{urlfor "UserController.Get"}}?page={{.nextPage}}">下一页</a>
-            <a class="next" href="{{urlfor "UserController.Get"}}?page={{.pageMap.lastpage}}">尾页</a>
+            <a class="next" href="{{urlfor "UserController.List"}}?page={{.nextPage}}">下一页</a>
+            <a class="next" href="{{urlfor "UserController.List"}}?page={{.pageMap.lastpage}}">尾页</a>
         </div>
     </div>
 
@@ -156,27 +161,32 @@
     });
 
     /*用户-停用*/
-    function member_stop(obj, id) {
-        layer.confirm('确认要停用吗？', function (index) {
+    function is_active(obj, id, is_active_val) {
+        var msg = is_active_val === 1 ? "停用" : "启用"
+        console.log(is_active_val);
 
-            if ($(obj).attr('title') == '启用') {
-
-                //发异步把用户状态进行更改
-                $(obj).attr('title', '停用')
-                $(obj).find('i').html('&#xe62f;');
-
-                $(obj).parents("tr").find(".td-status").find('span').addClass('layui-btn-disabled').html('已停用');
-                layer.msg('已停用!', {icon: 5, time: 1000});
-
-            } else {
-                $(obj).attr('title', '启用')
-                $(obj).find('i').html('&#xe601;');
-
-                $(obj).parents("tr").find(".td-status").find('span').removeClass('layui-btn-disabled').html('已启用');
-                layer.msg('已启用!', {icon: 5, time: 1000});
-            }
-
+        layer.confirm(`确认要${msg}吗？`, function (index) {
+            layer.close(index)
+            $.post({
+                url: "{{urlfor "UserController.IsActive"}}",
+                data: {
+                    is_active_val,
+                    id
+                },
+                success: function (data) {
+                    oa_alert.alertSuccessToast(data["msg"])
+                    setTimeout(reload_list, 1600)
+                },
+                fail: function (data) {
+                    console.log(data)
+                    oa_alert.alertErrorToast("状态修改失败")
+                }
+            })
         });
+    }
+
+    function reload_list() {
+        window.location.href = "{{urlfor "UserController.List"}}"
     }
 
     /*用户-删除*/

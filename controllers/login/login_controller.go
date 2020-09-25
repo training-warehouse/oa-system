@@ -33,8 +33,9 @@ func (l *LoginController) Post() {
 	password_md5 := utils.GetMd5File(password)
 
 	o := orm.NewOrm()
-	is_exist := o.QueryTable("sys_user").Filter(
-		"user_name", username).Filter("password", password_md5).Exist()
+	qs := o.QueryTable("sys_user").Filter(
+		"user_name", username).Filter("password", password_md5)
+	is_exist := qs.Exist()
 
 	ret_map := map[string]interface{}{}
 	if !is_exist {
@@ -45,11 +46,15 @@ func (l *LoginController) Post() {
 		ret_map["msg"] = "验证码错误"
 	} else {
 		user_obj := user.User{}
-		o.QueryTable("sys_user").Filter(
-			"user_name", username).Filter("password", password_md5).One(&user_obj)
-		l.SetSession("id", user_obj.Id)
-		ret_map["code"] = 200
-		ret_map["msg"] = "登录成功"
+		qs.One(&user_obj)
+		if user_obj.IsActive == 0 {
+			ret_map["code"] = 10001
+			ret_map["msg"] = "该用户已停用"
+		} else {
+			l.SetSession("id", user_obj.Id)
+			ret_map["code"] = 200
+			ret_map["msg"] = "登录成功"
+		}
 	}
 	fmt.Println(ret_map)
 	l.Data["json"] = ret_map

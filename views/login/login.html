@@ -11,11 +11,12 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="/static/css/font.css">
     <link rel="stylesheet" href="/static/css/xadmin.css">
-    <link rel="stylesheet" href="/static/js/sweetalert/sweetalert.css">
     <link rel="icon" href="/static/images/zlkt.ico" type="image/x-icon"/>
     <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="/static/lib/layui/layui.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/xadmin.js"></script>
+
+    <link rel="stylesheet" href="/static/js/sweetalert/sweetalert.css">
     <script src="/static/js/sweetalert/sweetalert.min.js"></script>
     <script src="/static/js/sweetalert/oa_alert.js"></script>
 </head>
@@ -91,7 +92,7 @@
                         if (code === 200) {
                             window.location.href = "{{urlfor "HomeController.Get"}}"
                         } else {
-                            oa_alert.alertError(data["msg"])
+                            oa_alert.alertErrorToast(data["msg"])
                             var img_btn = document.getElementById("captcha_img")
                             img_btn.onclick(null);
                         }

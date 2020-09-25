@@ -1,18 +1,20 @@
 package user
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"math"
 	"oa_system/models/user"
 	"oa_system/utils"
+	"strconv"
 )
 
 type UserController struct {
 	beego.Controller
 }
 
-func (u *UserController) Get() {
+func (u *UserController) List() {
 	o := orm.NewOrm()
 	var users []user.User
 
@@ -49,4 +51,69 @@ func (u *UserController) Get() {
 	u.Data["pageMap"] = page_map
 
 	u.TplName = "user/user_list.html"
+}
+
+func (u *UserController) Add() {
+	u.TplName = "user/user_add.html"
+}
+
+func (u *UserController) DoAdd() {
+	username := u.GetString("username")
+	password := u.GetString("password")
+	age, _ := u.GetInt("age")
+	gender, _ := u.GetInt("gender")
+	phone := u.GetString("phone")
+	addr := u.GetString("addr")
+	is_active, _ := u.GetInt("is_active")
+
+	new_password := utils.GetMd5File(password)
+	phone_int64, _ := strconv.ParseInt(phone, 10, 64)
+	o := orm.NewOrm()
+	user_data := user.User{
+		UserName: username,
+		Password: new_password,
+		Age:      age,
+		Gender:   gender,
+		Phone:    phone_int64,
+		Addr:     addr,
+		IsActive: is_active,
+	}
+	_, err := o.Insert(&user_data)
+
+	message_map := map[string]interface{}{}
+	if err != nil { //说明插入数据有问题
+
+		message_map["code"] = 10001
+		message_map["msg"] = "添加数据出错，请重新添加"
+		u.Data["json"] = message_map
+	} else {
+		message_map["code"] = 200
+		message_map["msg"] = "添加成功"
+		u.Data["json"] = message_map
+	}
+
+	u.ServeJSON()
+}
+
+func (u *UserController) IsActive() {
+	is_active, _ := u.GetInt("is_active_val")
+	id, _ := u.GetInt("id")
+	o := orm.NewOrm()
+	qs := o.QueryTable("sys_user").Filter("Id", id)
+	fmt.Println(is_active)
+	msg_map := map[string]interface{}{}
+	if is_active == 1 {
+		qs.Update(orm.Params{
+			"is_active": 0,
+		})
+		msg_map["msg"] = "已停用"
+	} else {
+		qs.Update(orm.Params{
+			"is_active": 1,
+		})
+		msg_map["msg"] = "已启用"
+	}
+
+	u.Data["json"] = msg_map
+	u.ServeJSON()
 }
